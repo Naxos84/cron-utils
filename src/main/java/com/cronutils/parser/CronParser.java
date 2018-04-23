@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
 
 import com.cronutils.model.CompositeCron;
@@ -86,22 +85,22 @@ public class CronParser {
             throw new IllegalArgumentException("Empty expression!");
         }
 
-        if(expression.contains("|")){
-            List<String> crons = new ArrayList<>();
-            int cronscount = Arrays.stream(expression.split("\\s+")).mapToInt(s->s.split("\\|").length).max().orElseGet(() -> 0);
-            for(int j=0; j<cronscount; j++){
-                StringBuilder builder = new StringBuilder();
-                for(String s : expression.split("\\s+")){
-                    if(s.contains("|")){
+        if (expression.contains("|")) {
+            final List<String> crons = new ArrayList<>();
+            final int cronscount = Arrays.stream(expression.split("\\s+")).mapToInt(s -> s.split("\\|").length).max().orElseGet(() -> 0);
+            for (int j = 0; j < cronscount; j++) {
+                final StringBuilder builder = new StringBuilder();
+                for (final String s : expression.split("\\s+")) {
+                    if (s.contains("|")) {
                         builder.append(String.format("%s ", s.split("\\|")[j]));
-                    }else{
+                    } else {
                         builder.append(String.format("%s ", s));
                     }
                 }
                 crons.add(builder.toString().trim());
             }
-            return new CompositeCron(crons.stream().map(c->parse(c)).collect(Collectors.toList()));
-        }else{
+            return new CompositeCron(crons.stream().map(this::parse).collect(Collectors.toList()));
+        } else {
             final String[] expressionParts = replaced.toUpperCase().split(" ");
             final int expressionLength = expressionParts.length;
             final List<CronParserField> fields = expressions.get(expressionLength);

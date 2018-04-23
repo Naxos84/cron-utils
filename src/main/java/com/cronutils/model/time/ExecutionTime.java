@@ -37,7 +37,7 @@ public interface ExecutionTime {
      * @return ExecutionTime instance
      */
     public static ExecutionTime forCron(final Cron cron) {
-        if(cron instanceof SingleCron){
+        if (cron instanceof SingleCron) {
             final Map<CronFieldName, CronField> fields = cron.retrieveFieldsAsMap();
             final ExecutionTimeBuilder executionTimeBuilder = new ExecutionTimeBuilder(cron.getCronDefinition());
             for (final CronFieldName name : CronFieldName.values()) {
@@ -73,7 +73,7 @@ public interface ExecutionTime {
                 }
             }
             return executionTimeBuilder.build();
-        }else{
+        } else {
             return new CompositeExecutionTime(((CompositeCron)cron).getCrons().parallelStream().map(ExecutionTime::forCron).collect(Collectors.toList()));
         }
 

@@ -24,7 +24,7 @@ public enum Weekdays {
 
     private int weekday;
 
-    Weekdays(int weekday) {
+    Weekdays(final int weekday) {
         this.weekday = weekday;
     }
 
@@ -32,11 +32,11 @@ public enum Weekdays {
         return getWeekday(ConstantsMapper.CRONTAB_WEEK_DAY);
     }
 
-    public int getWeekday(WeekDay weekDay) {
-        return ConstantsMapper.weekDayMapping(ConstantsMapper.CRONTAB_WEEK_DAY, weekDay, this.weekday);
+    public int getWeekday(final WeekDay weekDay) {
+        return ConstantsMapper.weekDayMapping(ConstantsMapper.CRONTAB_WEEK_DAY, weekDay, weekday);
     }
 
-    public int getWeekday(CronDefinition cronDefinition){
+    public int getWeekday(final CronDefinition cronDefinition) {
         return getWeekday(((DayOfWeekFieldDefinition)cronDefinition.getFieldDefinition(CronFieldName.DAY_OF_WEEK)).getMondayDoWValue());
     }
 }

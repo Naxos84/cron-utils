@@ -20,14 +20,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.cronutils.builder.CronBuilder;
-import com.cronutils.mapper.ConstantsMapper;
-import com.cronutils.mapper.CronMapper;
-import com.cronutils.mapper.WeekDay;
 import com.cronutils.model.Cron;
 import com.cronutils.model.CronType;
 import com.cronutils.model.field.CronFieldName;
 import com.cronutils.model.field.constraint.FieldConstraints;
-import com.cronutils.model.field.definition.DayOfWeekFieldDefinition;
 import com.cronutils.model.field.definition.FieldDefinition;
 import com.cronutils.model.field.expression.Weekdays;
 import com.cronutils.parser.CronParser;
@@ -178,9 +174,9 @@ public class CronDefinitionBuilderTest {
      * We need to provide means to easily perform accurate DoW values mapping when building a cron expression.
      */
     @Test
-    public void testDoWProperWeekdayOffset(){
-        CronDefinition cronDefinition = CronDefinitionBuilder.instanceDefinitionFor(CronType.QUARTZ);
-        CronBuilder builder = CronBuilder.cron(cronDefinition)
+    public void testDoWProperWeekdayOffset() {
+        final CronDefinition cronDefinition = CronDefinitionBuilder.instanceDefinitionFor(CronType.QUARTZ);
+        final CronBuilder builder = CronBuilder.cron(cronDefinition)
                 .withYear(always())
                 .withMonth(always())
                 .withDoW(on(Weekdays.FRIDAY.getWeekday(cronDefinition)))
@@ -189,16 +185,16 @@ public class CronDefinitionBuilderTest {
                 .withMinute(on(0))
                 .withSecond(on(0));
 
-        Cron cron = builder.instance();
-        String result = cron.asString();
+        final Cron cron = builder.instance();
+        final String result = cron.asString();
 
         assertEquals("0 0 12 ? * 6 *", result);
     }
 
     @Test
-    public void testSpringSchedule(){
-        CronDefinition cronDefinition = CronDefinitionBuilder.instanceDefinitionFor(CronType.SPRING);
-        CronBuilder builder = CronBuilder.cron(cronDefinition)
+    public void testSpringSchedule() {
+        final CronDefinition cronDefinition = CronDefinitionBuilder.instanceDefinitionFor(CronType.SPRING);
+        final CronBuilder builder = CronBuilder.cron(cronDefinition)
                 .withMonth(always())
                 .withDoW(questionMark())
                 .withDoM(always())
@@ -206,8 +202,8 @@ public class CronDefinitionBuilderTest {
                 .withMinute(every(on(0), 5))
                 .withSecond(always());
 
-        Cron cron = builder.instance();
-        String result = cron.asString();
+        final Cron cron = builder.instance();
+        final String result = cron.asString();
 
         assertEquals("* 0/5 * * * ?", result);
     }

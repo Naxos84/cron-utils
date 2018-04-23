@@ -10,6 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.cronutils.utils;
 
 import java.time.Duration;
@@ -20,45 +21,45 @@ import java.util.List;
 public class DateUtils {
     private DateUtils(){}
 
-    public static int workdaysCount(ZonedDateTime startDate, int days, List<ZonedDateTime> holidays, WeekendPolicy weekendPolicy){
+    public static int workdaysCount(final ZonedDateTime startDate, final int days, final List<ZonedDateTime> holidays, final WeekendPolicy weekendPolicy) {
         return workdaysCount(startDate, startDate.plusDays(days), holidays, weekendPolicy);
     }
 
-    public static int workdaysCount(ZonedDateTime startDate, ZonedDateTime endDate, List<ZonedDateTime> holidays, WeekendPolicy weekendPolicy){
+    public static int workdaysCount(final ZonedDateTime startDate, final ZonedDateTime endDate, List<ZonedDateTime> holidays, final WeekendPolicy weekendPolicy) {
         Collections.sort(holidays);
         holidays = holidaysInRange(startDate, endDate, holidays);
-        int daysToWeekend = WeekendPolicy.daysToWeekend(weekendPolicy, startDate);
-        int daysFromWeekend = WeekendPolicy.daysFromWeekend(weekendPolicy, endDate);
-        int daysBetween = (int)Duration.between(startDate, endDate).toDays()+1;
+        final int daysToWeekend = WeekendPolicy.daysToWeekend(weekendPolicy, startDate);
+        final int daysFromWeekend = WeekendPolicy.daysFromWeekend(weekendPolicy, endDate);
+        final int daysBetween = (int)Duration.between(startDate, endDate).toDays() + 1;
 
         //2+ [xxx+2]/7*5
-        int tmpWeekdays = (daysBetween-daysToWeekend-daysFromWeekend-2)/7*5;
-        tmpWeekdays = tmpWeekdays-holidays.size();
+        int tmpWeekdays = (daysBetween - daysToWeekend - daysFromWeekend - 2) / 7 * 5;
+        tmpWeekdays = tmpWeekdays - holidays.size();
 
-        return tmpWeekdays+daysToWeekend+daysFromWeekend;
+        return tmpWeekdays + daysToWeekend + daysFromWeekend;
     }
 
-    private static List<ZonedDateTime> holidaysInRange(ZonedDateTime startDate, ZonedDateTime endDate, List<ZonedDateTime> holidays){
-        if(holidays.isEmpty()){
+    private static List<ZonedDateTime> holidaysInRange(final ZonedDateTime startDate, final ZonedDateTime endDate, final List<ZonedDateTime> holidays) {
+        if (holidays.isEmpty()) {
             return holidays;
         }
-        int idxstart = findIdx(0, holidays.size()-1, startDate, holidays);
-        int idxend = findIdx(0, holidays.size()-1, endDate, holidays);
-        return holidays.subList(idxstart, idxend+1);
+        final int idxstart = findIdx(0, holidays.size() - 1, startDate, holidays);
+        final int idxend = findIdx(0, holidays.size() - 1, endDate, holidays);
+        return holidays.subList(idxstart, idxend + 1);
     }
 
-    private static int findIdx(int startidx, int endidx, ZonedDateTime endDate, List<ZonedDateTime> holidays){
-        if(startidx==endidx){
+    private static int findIdx(final int startidx, final int endidx, final ZonedDateTime endDate, final List<ZonedDateTime> holidays) {
+        if (startidx == endidx) {
             return startidx;
         }
-        int pivot = (endidx-startidx)/2;
+        int pivot = (endidx - startidx) / 2;
 
-        if(holidays.get(pivot).equals(endDate)){
+        if (holidays.get(pivot).equals(endDate)) {
             return pivot;
         }
-        if(holidays.get(pivot).isBefore(endDate)){
+        if (holidays.get(pivot).isBefore(endDate)) {
             return findIdx(++pivot, endidx, endDate, holidays);
-        }else{
+        } else {
             return findIdx(startidx, pivot, endDate, holidays);
         }
     }

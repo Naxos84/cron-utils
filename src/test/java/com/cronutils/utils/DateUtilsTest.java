@@ -15,42 +15,42 @@ import static org.junit.Assert.assertEquals;
 public class DateUtilsTest {
 
     @Test
-    public void workdaysCountPolicyThursday() throws Exception {
-        LocalDate date = LocalDate.of(2018, 1, 6);//this is a saturday
-        int daysToEndDate = 1;//sunday
-        WeekendPolicy policy = WeekendPolicy.THURSDAY_FRIDAY;
-        int workdaysCount = DateUtils.workdaysCount(ZonedDateTime.of(date, LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires")), daysToEndDate, new ArrayList<>(), policy);
+    public void workdaysCountPolicyThursday() {
+        final LocalDate date = LocalDate.of(2018, 1, 6);//this is a saturday
+        final int daysToEndDate = 1;//sunday
+        final WeekendPolicy policy = WeekendPolicy.THURSDAY_FRIDAY;
+        final int workdaysCount = DateUtils.workdaysCount(ZonedDateTime.of(date, LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires")), daysToEndDate, new ArrayList<>(), policy);
         assertEquals(2, workdaysCount);
     }
 
     @Test
-    public void workdaysCountPolicyFriday() throws Exception {
-        LocalDate date = LocalDate.of(2018, 1, 6);//this is a saturday
-        int daysToEndDate = 1;//sunday
-        WeekendPolicy policy = WeekendPolicy.FRIDAY_SATURDAY;
-        int daysToWorkday = DateUtils.workdaysCount(ZonedDateTime.of(date, LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires")), daysToEndDate, new ArrayList<>(), policy);
+    public void workdaysCountPolicyFriday() {
+        final LocalDate date = LocalDate.of(2018, 1, 6);//this is a saturday
+        final int daysToEndDate = 1;//sunday
+        final WeekendPolicy policy = WeekendPolicy.FRIDAY_SATURDAY;
+        final int daysToWorkday = DateUtils.workdaysCount(ZonedDateTime.of(date, LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires")), daysToEndDate, new ArrayList<>(), policy);
         assertEquals(1, daysToWorkday);
     }
 
     @Test
-    public void workdaysCountPolicySaturday() throws Exception {
-        LocalDate date = LocalDate.of(2018, 1, 6);//this is a saturday
-        int daysToEndDate = 1;//sunday
-        WeekendPolicy policy = WeekendPolicy.SATURDAY_SUNDAY;
-        int daysToWorkday = DateUtils.workdaysCount(ZonedDateTime.of(date, LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires")), daysToEndDate, new ArrayList<>(), policy);
+    public void workdaysCountPolicySaturday() {
+        final LocalDate date = LocalDate.of(2018, 1, 6);//this is a saturday
+        final int daysToEndDate = 1;//sunday
+        final WeekendPolicy policy = WeekendPolicy.SATURDAY_SUNDAY;
+        final int daysToWorkday = DateUtils.workdaysCount(ZonedDateTime.of(date, LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires")), daysToEndDate, new ArrayList<>(), policy);
         assertEquals(0, daysToWorkday);
     }
 
     @Test
-    public void workdaysMay2018Argentina() throws Exception {
-        ZonedDateTime start = ZonedDateTime.of(LocalDate.of(2018, 5, 1), LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires"));
-        ZonedDateTime end = ZonedDateTime.of(LocalDate.of(2018, 5, 31), LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires"));
-        List<ZonedDateTime> holidays = Arrays.asList(
+    public void workdaysMay2018Argentina() {
+        final ZonedDateTime start = ZonedDateTime.of(LocalDate.of(2018, 5, 1), LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires"));
+        final ZonedDateTime end = ZonedDateTime.of(LocalDate.of(2018, 5, 31), LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires"));
+        final List<ZonedDateTime> holidays = Arrays.asList(
                 ZonedDateTime.of(LocalDate.of(2018, 5, 1), LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires")),
                 ZonedDateTime.of(LocalDate.of(2018, 5, 25), LocalTime.of(1, 0), ZoneId.of("America/Argentina/Buenos_Aires"))
         );
-        WeekendPolicy policy = WeekendPolicy.SATURDAY_SUNDAY;
-        int daysToWorkday = DateUtils.workdaysCount(start, end, holidays, policy);
+        final WeekendPolicy policy = WeekendPolicy.SATURDAY_SUNDAY;
+        final int daysToWorkday = DateUtils.workdaysCount(start, end, holidays, policy);
         assertEquals(21, daysToWorkday);
     }
 }

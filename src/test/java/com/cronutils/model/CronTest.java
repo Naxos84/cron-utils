@@ -14,6 +14,7 @@
 package com.cronutils.model;
 
 import javax.ejb.ScheduleExpression;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -152,11 +153,11 @@ public class CronTest {
     }
 
     @Test
-    public void testAsScheduleExpression(){
+    public void testAsScheduleExpression() {
         final CronDefinition cronDefinition = TestCronDefinitionsFactory.quartzNoDoWAndDoMRestrictionBothSameTime();
         final CronParser cronParser = new CronParser(cronDefinition);
         final Cron cron = cronParser.parse("0 * * 1 * MON *");
-        ScheduleExpression expression = CronUtils.asScheduleExpression(cron);
+        final ScheduleExpression expression = CronUtils.asScheduleExpression(cron);
 
         assertNotNull(expression);
         assertEquals(cron.retrieve(CronFieldName.SECOND).getExpression().asString(), expression.getSecond());
@@ -172,27 +173,26 @@ public class CronTest {
     public void testAsScheduleExpressionQuestionMarkFails() {
         final CronDefinition quartzcd = CronDefinitionBuilder.instanceDefinitionFor(CronType.QUARTZ);
         final CronParser quartz = new CronParser(quartzcd);
-        final Cron cron = quartz.parse("0 * * ? * MON *");
-        CronUtils.asScheduleExpression(cron);
+        CronUtils.asScheduleExpression(quartz.parse("0 * * ? * MON *"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testAsScheduleExpressionDoYNotSupported() {
         final CronDefinition cronDefinition = TestCronDefinitionsFactory.withDayOfYearDefinitionWhereNoQuestionMarkSupported();
-        final CronParser cronParser= new CronParser(cronDefinition);
+        final CronParser cronParser = new CronParser(cronDefinition);
         final Cron cron = cronParser.parse("0 0 0 1 1-3 * * 1/14");
         CronUtils.asScheduleExpression(cron);
     }
 
     //@Test TODO
-    public void testIssue308(){
-        CronDefinition cronDefinition = CronDefinitionBuilder.instanceDefinitionFor(CronType.QUARTZ);
-        CronParser parser = new CronParser(cronDefinition);
-        Cron quartzCron = parser.parse("0 0 11 L-2 * ?");
-        CronDescriptor descriptor = CronDescriptor.instance(Locale.ENGLISH);
-        String description = descriptor.describe(quartzCron);
+    public void testIssue308() {
+        final CronDefinition cronDefinition = CronDefinitionBuilder.instanceDefinitionFor(CronType.QUARTZ);
+        final CronParser parser = new CronParser(cronDefinition);
+        final Cron quartzCron = parser.parse("0 0 11 L-2 * ?");
+        final CronDescriptor descriptor = CronDescriptor.instance(Locale.ENGLISH);
+        final String description = descriptor.describe(quartzCron);
 
         // not sure what the exact string 'should' be ..
-        assertEquals( "at 11:00 two days before the last day of month", description);
+        assertEquals("at 11:00 two days before the last day of month", description);
     }
 }

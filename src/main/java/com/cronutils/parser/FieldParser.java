@@ -29,7 +29,6 @@ import com.cronutils.model.field.value.SpecialChar;
 import com.cronutils.model.field.value.SpecialCharFieldValue;
 import com.cronutils.utils.Preconditions;
 import com.cronutils.utils.StringUtils;
-import com.cronutils.utils.VisibleForTesting;
 
 import static com.cronutils.model.field.expression.FieldExpression.always;
 import static com.cronutils.model.field.expression.FieldExpression.questionMark;
@@ -141,8 +140,7 @@ public class FieldParser {
         }
     }
 
-    @VisibleForTesting
-    protected FieldExpression parseBetween(final String[] array) {
+    private FieldExpression parseBetween(final String[] array) {
         if (array[0].isEmpty() || array[1].isEmpty()) {
             throw new IllegalArgumentException(
                     String.format("Invalid expression! Expression: %s-%s does not describe a range. Negative numbers are not allowed.", array[0], array[1]));
@@ -155,8 +153,7 @@ public class FieldParser {
         }
     }
 
-    @VisibleForTesting
-    protected On parseOn(final String exp) {
+    private On parseOn(final String exp) {
         if (QUESTION_MARK_STRING.equals(exp)) {
             return parseOnWithQuestionMark(exp);
         } else if (exp.contains(HASH_TAG)) {
@@ -172,8 +169,7 @@ public class FieldParser {
         }
     }
 
-    @VisibleForTesting
-    protected On parseOnWithHash(final String exp) {
+    private On parseOnWithHash(final String exp) {
         if (!fieldConstraints.getSpecialChars().contains(HASH)) {
             throw new IllegalArgumentException("Invalid expression: " + exp);
         }
@@ -186,8 +182,7 @@ public class FieldParser {
         return new On(mapToIntegerFieldValue(array[0]), specialChar, nth);
     }
 
-    @VisibleForTesting
-    protected On parseOnWithQuestionMark(final String exp) {
+    private On parseOnWithQuestionMark(final String exp) {
         final SpecialCharFieldValue specialChar = new SpecialCharFieldValue(QUESTION_MARK);
         final String questionMarkExpression = exp.replace(QUESTION_MARK_STRING, EMPTY_STRING);
         if (EMPTY_STRING.equals(questionMarkExpression)) {
@@ -197,8 +192,7 @@ public class FieldParser {
         }
     }
 
-    @VisibleForTesting
-    protected On parseOnWithLW(final String exp) {
+    private On parseOnWithLW(final String exp) {
         final SpecialCharFieldValue specialChar = new SpecialCharFieldValue(LW);
         final String lwExpression = exp.replace(LW_STRING, EMPTY_STRING);
         if (EMPTY_STRING.equals(lwExpression)) {
@@ -208,12 +202,11 @@ public class FieldParser {
         }
     }
 
-    @VisibleForTesting
-    protected On parseOnWithL(final String exp) {
+    private On parseOnWithL(final String exp) {
         return parseOnWithL(exp, new IntegerFieldValue(-1));
     }
 
-    protected On parseOnWithL(final String exp, final IntegerFieldValue daysBefore) {
+    private On parseOnWithL(final String exp, final IntegerFieldValue daysBefore) {
         final SpecialCharFieldValue specialChar = new SpecialCharFieldValue(L);
         final String expression = exp.replace(L_STRING, EMPTY_STRING);
         IntegerFieldValue time = new IntegerFieldValue(-1);
@@ -223,13 +216,11 @@ public class FieldParser {
         return new On(time, specialChar, daysBefore);
     }
 
-    @VisibleForTesting
-    protected On parseOnWithW(final String exp) {
+    private On parseOnWithW(final String exp) {
         return new On(mapToIntegerFieldValue(exp.replace(W_STRING, EMPTY_STRING)), new SpecialCharFieldValue(W), new IntegerFieldValue(-1));
     }
 
-    @VisibleForTesting
-    protected IntegerFieldValue mapToIntegerFieldValue(final String string) {
+    private IntegerFieldValue mapToIntegerFieldValue(final String string) {
         try {
             return new IntegerFieldValue(intToInt(stringToInt(string)));
         } catch (final NumberFormatException e) {
@@ -237,8 +228,7 @@ public class FieldParser {
         }
     }
 
-    @VisibleForTesting
-    protected FieldValue<?> map(final String string) {
+    private FieldValue<?> map(final String string) {
         for (final SpecialChar sc : SpecialChar.values()) {
             if (sc.toString().equals(string)) {
                 return new SpecialCharFieldValue(sc);
@@ -253,8 +243,7 @@ public class FieldParser {
      * @param exp - expression to be mapped
      * @return integer value for string expression
      */
-    @VisibleForTesting
-    protected int stringToInt(final String exp) {
+    private int stringToInt(final String exp) {
         final Integer value = fieldConstraints.getStringMappingValue(exp);
         if (value != null) {
             return value;
@@ -275,8 +264,7 @@ public class FieldParser {
      * @param exp - integer to be mapped
      * @return Mapping integer. If no mapping int is found, will return exp
      */
-    @VisibleForTesting
-    protected int intToInt(final Integer exp) {
+    private int intToInt(final Integer exp) {
         final Integer value = fieldConstraints.getIntMappingValue(exp);
         if (value != null) {
             return value;

@@ -21,17 +21,14 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.cronutils.mapper.WeekDay;
-import com.cronutils.model.Cron;
 import com.cronutils.model.definition.CronDefinition;
 import com.cronutils.model.field.CronField;
-import com.cronutils.model.field.CronFieldName;
 import com.cronutils.model.field.definition.DayOfWeekFieldDefinition;
 import com.cronutils.model.field.expression.Always;
 import com.cronutils.model.field.expression.QuestionMark;
@@ -98,6 +95,7 @@ public class SingleExecutionTime implements ExecutionTime {
      * @param date - ZonedDateTime instance. If null, a NullPointerException will be raised.
      * @return Optional ZonedDateTime instance, never null. Contains next execution time or empty.
      */
+    @Override
     public Optional<ZonedDateTime> nextExecution(final ZonedDateTime date) {
         Preconditions.checkNotNull(date);
         try {
@@ -293,8 +291,6 @@ public class SingleExecutionTime implements ExecutionTime {
     }
 
     private ExecutionTimeResult potentialPreviousClosestMatch(final ZonedDateTime date) throws NoSuchValueException {
-        //int startyear = cronDefinition.getFieldDefinition(CronFieldName.YEAR).getConstraints().getStartRange();
-        //final List<Integer> year = yearsValueGenerator.generateCandidates(startyear, date.getYear());
         final List<Integer> year = yearsValueGenerator.generateCandidates(date.getYear(), date.getYear());
         final Optional<TimeNode> optionalDays = generateDays(cronDefinition, date);
         TimeNode days;
@@ -377,7 +373,6 @@ public class SingleExecutionTime implements ExecutionTime {
         NearestValue nearestValue;
         ZonedDateTime newDate;
         nearestValue = months.getPreviousValue(date.getMonthValue(), 0);
-        final int previousMonths = nearestValue.getValue();
         if (nearestValue.getShifts() > 0) {
             newDate = ZonedDateTime.of(
                     LocalDate.of(date.getYear(), 12, 31),
@@ -385,8 +380,7 @@ public class SingleExecutionTime implements ExecutionTime {
                     date.getZone()
             ).minusYears(nearestValue.getShifts());
             return new ExecutionTimeResult(newDate, false);
-        }
-        else {
+        } else {
             newDate = ZonedDateTime.of(date.getYear(), date.getMonthValue(), 1, 0, 0, 0, 0, date.getZone()).minusNanos(1);
 
             return new ExecutionTimeResult(newDate, false);
@@ -527,6 +521,7 @@ public class SingleExecutionTime implements ExecutionTime {
      * @param date - ZonedDateTime instance. If null, a NullPointerException will be raised.
      * @return Duration instance, never null. Time to next execution.
      */
+    @Override
     public Optional<Duration> timeToNextExecution(final ZonedDateTime date) {
         final Optional<ZonedDateTime> next = nextExecution(date);
         return next.map(zonedDateTime -> Duration.between(date, zonedDateTime));
@@ -538,6 +533,7 @@ public class SingleExecutionTime implements ExecutionTime {
      * @param date - ZonedDateTime instance. If null, a NullPointerException will be raised.
      * @return Optional ZonedDateTime instance, never null. Last execution time or empty.
      */
+    @Override
     public Optional<ZonedDateTime> lastExecution(final ZonedDateTime date) {
         Preconditions.checkNotNull(date);
         try {
@@ -557,6 +553,7 @@ public class SingleExecutionTime implements ExecutionTime {
      * @param date - ZonedDateTime instance. If null, a NullPointerException will be raised.
      * @return Duration instance, never null. Time from last execution.
      */
+    @Override
     public Optional<Duration> timeFromLastExecution(final ZonedDateTime date) {
         return lastExecution(date).map(zonedDateTime -> Duration.between(zonedDateTime, date));
     }
@@ -567,6 +564,7 @@ public class SingleExecutionTime implements ExecutionTime {
      * @param date - ZonedDateTime instance. If null, a NullPointerException will be raised.
      * @return true if date matches cron expression requirements, false otherwise.
      */
+    @Override
     public boolean isMatch(ZonedDateTime date) {
         // Issue #200: Truncating the date to the least granular precision supported by different cron systems.
         // For Quartz, it's seconds while for Unix & Cron4J it's minutes.

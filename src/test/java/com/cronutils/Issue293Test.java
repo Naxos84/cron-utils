@@ -27,7 +27,7 @@ public class Issue293Test {
     private final String cronText;
 
     /**
-     * Each test is a cron spec excluding the reference month (December)
+     * Each test is a cron spec excluding the reference month (December).
      * @return unix cron
      */
     @Parameterized.Parameters(name = "{0}")
@@ -40,31 +40,31 @@ public class Issue293Test {
         };
     }
 
-    public Issue293Test(String cronText) {
+    public Issue293Test(final String cronText) {
         this.cronText = cronText;
     }
 
     @Test
     public void test() {
-        CronDefinition def = CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX);
-        CronParser parser = new CronParser(def);
+        final CronDefinition def = CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX);
+        final CronParser parser = new CronParser(def);
 
-        Cron cron = parser.parse(cronText);
-        ExecutionTime et = ExecutionTime.forCron(cron);
+        final Cron cron = parser.parse(cronText);
+        final ExecutionTime et = ExecutionTime.forCron(cron);
 
-        ZonedDateTime vs = ZonedDateTime.of(2017, 12, 1, 9, 30, 0, 0, ZONE);
+        final ZonedDateTime vs = ZonedDateTime.of(2017, 12, 1, 9, 30, 0, 0, ZONE);
         assertEquals(DayOfWeek.FRIDAY, vs.getDayOfWeek());
 
         // Last match prior to our reference time
-        ZonedDateTime expected = ZonedDateTime.of(2017, 11, 30, 18, 15, 0, 0, ZONE);
+        final ZonedDateTime expected = ZonedDateTime.of(2017, 11, 30, 18, 15, 0, 0, ZONE);
         assertEquals(DayOfWeek.THURSDAY, expected.getDayOfWeek());
 
-	Optional<ZonedDateTime> lastExecution = et.lastExecution(vs);
-	if (lastExecution.isPresent()) {
-	    ZonedDateTime actual = lastExecution.get();
-	    assertEquals(expected, actual);
-	} else {
-	    fail("last execution was not present");
-	}
+        final Optional<ZonedDateTime> lastExecution = et.lastExecution(vs);
+        if (lastExecution.isPresent()) {
+            final ZonedDateTime actual = lastExecution.get();
+            assertEquals(expected, actual);
+        } else {
+            fail("last execution was not present");
+        }
     }
 }

@@ -101,14 +101,6 @@ public class TestDescriptor {
         assertEquals(descriptor.describe(cron), descriptor.describe(otherCron));
     }
 
-    @Test
-    public void testEverySecond2WithoutYear() {
-        final Cron cron = getCron("* * * ? * * *");
-        final Cron otherCron = getCron("* * * * * ? *");
-        assertEquals("every second", descriptor.describe(cron));
-        assertEquals(descriptor.describe(cron), descriptor.describe(otherCron));
-    }
-
     @Ignore
     @Test
     public void testAtSecondEveryMinute() {

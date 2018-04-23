@@ -13,15 +13,17 @@ import com.cronutils.model.field.CronFieldName;
 import com.cronutils.utils.Preconditions;
 
 public class CompositeCron implements Cron {
-    private Pattern split = Pattern.compile("\\|");
-    private List<Cron> crons;
-    private CronDefinition definition;
 
-    public CompositeCron(List<Cron> crons){
+    private static final long serialVersionUID = 1L;
+    private final Pattern split = Pattern.compile("\\|");
+    private final List<Cron> crons;
+    private final CronDefinition definition;
+
+    public CompositeCron(final List<Cron> crons){
         this.crons = Collections.unmodifiableList(crons);
         Preconditions.checkNotNullNorEmpty(crons, "List of Cron cannot be null or empty");
-        this.definition = crons.get(0).getCronDefinition();
-        Preconditions.checkArgument(crons.size()==crons.stream().filter(c->c.getCronDefinition().equals(definition)).count(), "All Cron objects must have same definition for CompositeCron");
+        definition = crons.get(0).getCronDefinition();
+        Preconditions.checkArgument(crons.size() == crons.stream().filter(c -> c.getCronDefinition().equals(definition)).count(), "All Cron objects must have same definition for CompositeCron");
     }
 
     public List<Cron> getCrons() {
@@ -29,7 +31,7 @@ public class CompositeCron implements Cron {
     }
 
     @Override
-    public CronField retrieve(CronFieldName name) {
+    public CronField retrieve(final CronFieldName name) {
         throw new UnsupportedOperationException("Currently not supported for CompositeCron");
     }
 
@@ -40,16 +42,16 @@ public class CompositeCron implements Cron {
 
     @Override
     public String asString() {
-        StringBuilder builder = new StringBuilder();
-        List<String> patterns = crons.stream().map(Cron::asString).collect(Collectors.toList());
-        int fields = patterns.get(0).split(" ").length;
-        for(int j=0;j<fields;j++){
-            StringBuilder fieldbuilder = new StringBuilder();
-            for(String pattern : patterns){
+        final StringBuilder builder = new StringBuilder();
+        final List<String> patterns = crons.stream().map(Cron::asString).collect(Collectors.toList());
+        final int fields = patterns.get(0).split(" ").length;
+        for (int j = 0; j < fields; j++) {
+            final StringBuilder fieldbuilder = new StringBuilder();
+            for (final String pattern : patterns) {
                 fieldbuilder.append(String.format("%s ", pattern.split(" ")[j]));
             }
             String fieldstring = fieldbuilder.toString().trim().replaceAll(" ", "|");
-            if(split.splitAsStream(fieldstring).distinct().limit(2).count() <= 1){
+            if (split.splitAsStream(fieldstring).distinct().limit(2).count() <= 1) {
                 fieldstring = split.split(fieldstring)[0];
             }
             builder.append(String.format("%s ", fieldstring));
@@ -64,19 +66,19 @@ public class CompositeCron implements Cron {
 
     @Override
     public Cron validate() {
-        for(Cron cron : crons){
+        for (final Cron cron : crons) {
             cron.validate();
         }
         return this;
     }
 
     @Override
-    public boolean equivalent(CronMapper cronMapper, Cron cron) {
+    public boolean equivalent(final CronMapper cronMapper, final Cron cron) {
         throw new UnsupportedOperationException("Currently not supported for CompositeCron");
     }
 
     @Override
-    public boolean equivalent(Cron cron) {
+    public boolean equivalent(final Cron cron) {
         return asString().equals(cron.asString());
     }
 }

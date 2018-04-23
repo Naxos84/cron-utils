@@ -38,9 +38,7 @@ public class ValidationFieldExpressionVisitor implements FieldExpressionVisitor 
     private final boolean strictRanges;
 
     public ValidationFieldExpressionVisitor(final FieldConstraints constraints, final boolean strictRanges) {
-        this.constraints = constraints;
-        stringValidations = new StringValidations(constraints);
-        this.strictRanges = strictRanges;
+        this(constraints, new StringValidations(constraints), strictRanges);
     }
 
     protected ValidationFieldExpressionVisitor(final FieldConstraints constraints, final StringValidations stringValidation, final boolean strictRanges) {

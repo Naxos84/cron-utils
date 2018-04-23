@@ -96,56 +96,89 @@ class ExecutionTimeBuilder {
 
     protected ExecutionTime build() {
         boolean lowestAssigned = false;
+
+        lowestAssigned |= buildSeconds();
+        lowestAssigned |= buildMinutes(lowestAssigned);
+        lowestAssigned |= buildHours(lowestAssigned);
+        lowestAssigned |= buildDaysOfMonthCronField(lowestAssigned);
+        lowestAssigned |= buildDaysOfWeekCronField(lowestAssigned);
+        buildMonths(lowestAssigned);
+        buildYearsValueGenerator();
+        buildDaysOfYearCronField(lowestAssigned);
+
+        return new SingleExecutionTime(cronDefinition,
+                yearsValueGenerator, daysOfWeekCronField, daysOfMonthCronField, daysOfYearCronField,
+                months, hours, minutes, seconds
+        );
+    }
+
+    private boolean buildSeconds() {
         if (seconds == null) {
             seconds = timeNodeLowest(CronFieldName.SECOND, 0, 59);
-        } else {
-            lowestAssigned = true;
+            return false;
         }
+        return true;
+    }
+
+    private boolean buildMinutes(final boolean isLowestAssigned) {
         if (minutes == null) {
-            minutes = lowestAssigned ? timeNodeAlways(CronFieldName.MINUTE, 0, 59) : timeNodeLowest(CronFieldName.MINUTE, 0, 59);
-        } else {
-            lowestAssigned = true;
+            minutes = isLowestAssigned ? timeNodeAlways(CronFieldName.MINUTE, 0, 59) : timeNodeLowest(CronFieldName.MINUTE, 0, 59);
+            return false;
         }
+        return true;
+    }
+
+    private boolean buildHours(final boolean isLowestAssigned) {
         if (hours == null) {
-            hours = lowestAssigned ? timeNodeAlways(CronFieldName.HOUR, 0, 23) : timeNodeLowest(CronFieldName.HOUR, 0, 23);
-        } else {
-            lowestAssigned = true;
+            hours = isLowestAssigned ? timeNodeAlways(CronFieldName.HOUR, 0, 23) : timeNodeLowest(CronFieldName.HOUR, 0, 23);
+            return false;
         }
+        return true;
+    }
+
+    private boolean buildDaysOfMonthCronField(final boolean isLowestAssigned) {
         if (daysOfMonthCronField == null) {
             final FieldConstraints constraints = getConstraint(CronFieldName.DAY_OF_MONTH);
-            daysOfMonthCronField = lowestAssigned
+            daysOfMonthCronField = isLowestAssigned
                     ? new CronField(CronFieldName.DAY_OF_MONTH, always(), constraints)
                     : new CronField(CronFieldName.DAY_OF_MONTH, new On(new IntegerFieldValue(1)), constraints);
-        } else {
-            lowestAssigned = true;
+            return false;
         }
+        return true;
+    }
+
+    private boolean buildDaysOfWeekCronField(final boolean isLowestAssigned) {
         if (daysOfWeekCronField == null) {
             final FieldConstraints constraints = getConstraint(CronFieldName.DAY_OF_WEEK);
-            daysOfWeekCronField = lowestAssigned
+            daysOfWeekCronField = isLowestAssigned
                     ? new CronField(CronFieldName.DAY_OF_WEEK, always(), constraints)
                     : new CronField(CronFieldName.DAY_OF_WEEK, new On(new IntegerFieldValue(1)), constraints);
-        } else {
-            lowestAssigned = true;
+            return false;
         }
+        return true;
+    }
+
+    private void buildMonths(final boolean isLowestAssigned) {
         if (months == null) {
-            months = lowestAssigned ? timeNodeAlways(CronFieldName.MONTH, 1, 12) : timeNodeLowest(CronFieldName.MONTH, 1, 12);
+            months = isLowestAssigned ? timeNodeAlways(CronFieldName.MONTH, 1, 12) : timeNodeLowest(CronFieldName.MONTH, 1, 12);
         }
+    }
+
+    private void buildYearsValueGenerator() {
         if (yearsValueGenerator == null) {
             yearsValueGenerator =
                     FieldValueGeneratorFactory.forCronField(
                             new CronField(CronFieldName.YEAR, always(), getConstraint(CronFieldName.YEAR))
                     );
         }
+    }
+
+    private void buildDaysOfYearCronField(final boolean isLowestAssigned) {
         if (daysOfYearCronField == null) {
             final FieldConstraints constraints = getConstraint(CronFieldName.DAY_OF_YEAR);
-            daysOfYearCronField = new CronField(CronFieldName.DAY_OF_YEAR, lowestAssigned ? FieldExpression.questionMark() : always(),
+            daysOfYearCronField = new CronField(CronFieldName.DAY_OF_YEAR, isLowestAssigned ? FieldExpression.questionMark() : always(),
                     constraints);
         }
-
-        return new SingleExecutionTime(cronDefinition,
-                yearsValueGenerator, daysOfWeekCronField, daysOfMonthCronField, daysOfYearCronField,
-                months, hours, minutes, seconds
-        );
     }
 
     private TimeNode timeNodeLowest(final CronFieldName name, final int lower, final int higher) {

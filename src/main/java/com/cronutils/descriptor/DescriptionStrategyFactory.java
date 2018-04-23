@@ -26,6 +26,8 @@ import com.cronutils.model.field.expression.On;
 
 class DescriptionStrategyFactory {
 
+    private static final String FORMAT_PATTERN = "%s %s %s ";
+
     private DescriptionStrategyFactory() {
     }
 
@@ -52,9 +54,9 @@ class DescriptionStrategyFactory {
                 final On on = (On) fieldExpression;
                 switch (on.getSpecialChar().getValue()) {
                     case HASH:
-                        return String.format("%s %s %s ", nominal.apply(on.getTime().getValue()), on.getNth(), bundle.getString("of_every_month"));
+                        return String.format(FORMAT_PATTERN, nominal.apply(on.getTime().getValue()), on.getNth(), bundle.getString("of_every_month"));
                     case L:
-                        return String.format("%s %s %s ", bundle.getString("last"), nominal.apply(on.getTime().getValue()), bundle.getString("of_every_month"));
+                        return String.format(FORMAT_PATTERN, bundle.getString("last"), nominal.apply(on.getTime().getValue()), bundle.getString("of_every_month"));
                     default:
                         return "";
                 }
@@ -80,7 +82,7 @@ class DescriptionStrategyFactory {
                 switch (on.getSpecialChar().getValue()) {
                     case W:
                         return String
-                                .format("%s %s %s ", bundle.getString("the_nearest_weekday_to_the"), on.getTime().getValue(), bundle.getString("of_the_month"));
+                                .format(FORMAT_PATTERN, bundle.getString("the_nearest_weekday_to_the"), on.getTime().getValue(), bundle.getString("of_the_month"));
                     case L:
                         return bundle.getString("last_day_of_month");
                     case LW:

@@ -17,59 +17,61 @@ import java.time.ZonedDateTime;
 public enum WeekendPolicy {
     THURSDAY_FRIDAY, FRIDAY_SATURDAY, SATURDAY_SUNDAY;
 
-    public static int daysToWeekend(WeekendPolicy policy, ZonedDateTime date) {
-        int dow = date.getDayOfWeek().getValue();
+    public static int daysToWeekend(final WeekendPolicy policy, final ZonedDateTime date) {
+        final int dow = date.getDayOfWeek().getValue();
         switch (policy) {
             case THURSDAY_FRIDAY:
-                if(dow < 4) {
+                if (dow < 4) {
                     return 4 - dow;
                 }
-                if(dow > 5) {
+                if (dow > 5) {
                     return 7 - dow + 4;
                 }
-                break;
+                return 0;
             case FRIDAY_SATURDAY:
-                if(dow < 5) {
+                if (dow < 5) {
                     return 6 - dow;
                 }
-                if(dow > 6) {
+                if (dow > 6) {
                     return 7 - dow + 5;
                 }
-                break;
+                return 0;
             case SATURDAY_SUNDAY:
-                if(dow < 6) {
+                if (dow < 6) {
                     return Math.max(0, 6 - dow);
                 }
-                break;
+                return 0;
+            default:
+                return 0;
         }
-        return 0;
     }
 
-    public static int daysFromWeekend(WeekendPolicy policy, ZonedDateTime date) {
-        int dow = date.getDayOfWeek().getValue();
+    public static int daysFromWeekend(final WeekendPolicy policy, final ZonedDateTime date) {
+        final int dow = date.getDayOfWeek().getValue();
         switch (policy) {
             case THURSDAY_FRIDAY:
-                if(dow<4) {
+                if (dow < 4) {
                     return dow;
                 }
-                if(dow>5) {
+                if (dow > 5) {
                     return dow - 5;
                 }
-                break;
+                return 0;
             case FRIDAY_SATURDAY:
-                if(dow<5) {
+                if (dow < 5) {
                     return dow;
                 }
-                if(dow>6) {
+                if (dow > 6) {
                     return dow - 6;
                 }
-                break;
+                return 0;
             case SATURDAY_SUNDAY:
-                if(dow<6) {
+                if (dow < 6) {
                     return dow;
                 }
-                break;
+                return 0;
+            default:
+                return 0;
         }
-        return 0;
     }
 }

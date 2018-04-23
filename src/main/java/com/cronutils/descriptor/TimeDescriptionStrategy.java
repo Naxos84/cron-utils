@@ -109,92 +109,40 @@ class TimeDescriptionStrategy extends DescriptionStrategy {
      * Registers functions that map TimeFields to a human readable description.
      */
     private void registerFunctions() {
-        // case: every second
-        // case: every minute at x second
-        descriptions.add(timeFields -> {
-            if (timeFields.hours instanceof Always && timeFields.minutes instanceof Always) {
-                if (timeFields.seconds instanceof Always) {
-                    return String.format(EVERY_MINUTE_FORMAT, bundle.getString(EVERY), bundle.getString(SECOND));
-                }
-                if (timeFields.seconds instanceof On) {
-                    if (TimeDescriptionStrategy.this.isDefault((On) timeFields.seconds)) {
-                        return String.format(EVERY_MINUTE_FORMAT, bundle.getString(EVERY), bundle.getString(MINUTE));
-                    } else {
-                        return String.format("%s %s %s %s %02d", bundle.getString(EVERY), bundle.getString(MINUTE), bundle.getString("at"),
-                                bundle.getString(SECOND), ((On) timeFields.seconds).getTime().getValue());
-                    }
-                }
-            }
-            return StringUtils.EMPTY;
-        });
+        registerEverySecondEveryMinuteAtFunction();
+        registerAtMinuteFunction();
+        registerHourMinuteFunction();
+        registerHourMinuteSecondFunction();
+        registerHourToHourMinuteFunction();
+        registerEveryMinuteBetweenEverySecondBetweenFunction();
+        registerEveryXMinutesFunction();
+        registerEveryXHoursFunction();
+    }
 
-        // case: At minute x
+    private void registerEveryXHoursFunction() {
+        // case: every x hours
         descriptions.add(timeFields -> {
-            if (timeFields.hours instanceof Always && timeFields.minutes instanceof On && timeFields.seconds instanceof On) {
-                if (TimeDescriptionStrategy.this.isDefault((On) timeFields.seconds)) {
-                    if (TimeDescriptionStrategy.this.isDefault((On) timeFields.minutes)) {
+            if (timeFields.hours instanceof Every && timeFields.minutes instanceof On && timeFields.seconds instanceof On) {
+                // every hour
+                if (((On) timeFields.minutes).getTime().getValue() == 0 && ((On) timeFields.seconds).getTime().getValue() == 0) {
+                    final Integer period = ((Every) timeFields.hours).getPeriod().getValue();
+                    if (period == null || period == 1) {
                         return String.format(EVERY_MINUTE_FORMAT, bundle.getString(EVERY), bundle.getString("hour"));
                     }
-                    return String.format("%s %s %s %s %s", bundle.getString(EVERY), bundle.getString("hour"), bundle.getString("at"),
-                            bundle.getString(MINUTE), ((On) timeFields.minutes).getTime().getValue());
-                } else {
-                    return String.format("%s %s %s %s %s %s %s %s", bundle.getString(EVERY), bundle.getString("hour"), bundle.getString("at"),
-                            bundle.getString(MINUTE), ((On) timeFields.minutes).getTime().getValue(), bundle.getString("and"), bundle.getString(SECOND),
-                            ((On) timeFields.seconds).getTime().getValue());
                 }
-            }
-            return StringUtils.EMPTY;
-        });
-
-        // case: 11:45
-        descriptions.add(timeFields -> {
-            if (timeFields.hours instanceof On && timeFields.minutes instanceof On && timeFields.seconds instanceof Always) {
-                return String.format("%s %s %s %02d:%02d", bundle.getString(EVERY), bundle.getString(SECOND), bundle.getString("at"),
-                        ((On) hours).getTime().getValue(), ((On) minutes).getTime().getValue());
-            }
-            return StringUtils.EMPTY;
-        });
-
-        // case: 11:30:45
-        // case: 11:30:00 -> 11:30
-        descriptions.add(timeFields -> {
-            if (timeFields.hours instanceof On && timeFields.minutes instanceof On && timeFields.seconds instanceof On) {
+                final String result = String.format("%s %s %s %s %s %s ", bundle.getString(EVERY), ((Every) hours).getPeriod().getValue(),
+                        bundle.getString("hours"), bundle.getString("at"), bundle.getString(MINUTE), ((On) minutes).getTime().getValue());
                 if (TimeDescriptionStrategy.this.isDefault((On) timeFields.seconds)) {
-                    return String.format("%s %02d:%02d", bundle.getString("at"), ((On) hours).getTime().getValue(), ((On) minutes).getTime().getValue());
+                    return result;
                 } else {
-                    return String.format("%s %02d:%02d:%02d", bundle.getString("at"), ((On) hours).getTime().getValue(), ((On) minutes).getTime().getValue(),
-                            ((On) seconds).getTime().getValue());
+                    return String.format("%s %s %s", bundle.getString("and"), bundle.getString(SECOND), ((On) seconds).getTime().getValue());
                 }
             }
             return StringUtils.EMPTY;
         });
+    }
 
-        // 11 -> 11:00
-        descriptions.add(timeFields -> {
-            if (timeFields.hours instanceof On && timeFields.minutes instanceof Always && timeFields.seconds instanceof Always) {
-                return String.format("%s %02d:00", bundle.getString("at"), ((On) hours).getTime().getValue());
-            }
-            return StringUtils.EMPTY;
-        });
-
-        // case: every minute between 11:00 and 11:10
-        // case: every second between 11:00 and 11:10
-        descriptions.add(timeFields -> {
-            if (timeFields.hours instanceof On && timeFields.minutes instanceof Between) {
-                if (timeFields.seconds instanceof On) {
-                    return String.format("%s %s %s %02d:%02d %s %02d:%02d", bundle.getString(EVERY), bundle.getString(MINUTE), bundle.getString("between"),
-                            ((On) timeFields.hours).getTime().getValue(), ((Between) timeFields.minutes).getFrom().getValue(), bundle.getString("and"),
-                            ((On) timeFields.hours).getTime().getValue(), ((Between) timeFields.minutes).getTo().getValue());
-                }
-                if (timeFields.seconds instanceof Always) {
-                    return String.format("%s %s %s %02d:%02d %s %02d:%02d", bundle.getString(EVERY), bundle.getString(SECOND), bundle.getString("between"),
-                            ((On) timeFields.hours).getTime().getValue(), ((Between) timeFields.minutes).getFrom().getValue(), bundle.getString("and"),
-                            ((On) timeFields.hours).getTime().getValue(), ((Between) timeFields.minutes).getTo().getValue());
-                }
-            }
-            return StringUtils.EMPTY;
-        });
-
+    private void registerEveryXMinutesFunction() {
         // case: every x minutes
         descriptions.add(timeFields -> {
             if (timeFields.hours instanceof Always && timeFields.minutes instanceof Every && timeFields.seconds instanceof On) {
@@ -212,23 +160,100 @@ class TimeDescriptionStrategy extends DescriptionStrategy {
             }
             return StringUtils.EMPTY;
         });
+    }
 
-        // case: every x hours
+    private void registerEveryMinuteBetweenEverySecondBetweenFunction() {
+        // case: every minute between 11:00 and 11:10
+        // case: every second between 11:00 and 11:10
         descriptions.add(timeFields -> {
-            if (timeFields.hours instanceof Every && timeFields.minutes instanceof On && timeFields.seconds instanceof On) {
-                // every hour
-                if (((On) timeFields.minutes).getTime().getValue() == 0 && ((On) timeFields.seconds).getTime().getValue() == 0) {
-                    final Integer period = ((Every) timeFields.hours).getPeriod().getValue();
-                    if (period == null || period == 1) {
+            if (timeFields.hours instanceof On && timeFields.minutes instanceof Between) {
+                if (timeFields.seconds instanceof On) {
+                    return String.format("%s %s %s %02d:%02d %s %02d:%02d", bundle.getString(EVERY), bundle.getString(MINUTE), bundle.getString("between"),
+                            ((On) timeFields.hours).getTime().getValue(), ((Between) timeFields.minutes).getFrom().getValue(), bundle.getString("and"),
+                            ((On) timeFields.hours).getTime().getValue(), ((Between) timeFields.minutes).getTo().getValue());
+                }
+                if (timeFields.seconds instanceof Always) {
+                    return String.format("%s %s %s %02d:%02d %s %02d:%02d", bundle.getString(EVERY), bundle.getString(SECOND), bundle.getString("between"),
+                            ((On) timeFields.hours).getTime().getValue(), ((Between) timeFields.minutes).getFrom().getValue(), bundle.getString("and"),
+                            ((On) timeFields.hours).getTime().getValue(), ((Between) timeFields.minutes).getTo().getValue());
+                }
+            }
+            return StringUtils.EMPTY;
+        });
+    }
+
+    private void registerHourToHourMinuteFunction() {
+        // 11 -> 11:00
+        descriptions.add(timeFields -> {
+            if (timeFields.hours instanceof On && timeFields.minutes instanceof Always && timeFields.seconds instanceof Always) {
+                return String.format("%s %02d:00", bundle.getString("at"), ((On) hours).getTime().getValue());
+            }
+            return StringUtils.EMPTY;
+        });
+    }
+
+    private void registerHourMinuteSecondFunction() {
+        // case: 11:30:45
+        // case: 11:30:00 -> 11:30
+        descriptions.add(timeFields -> {
+            if (timeFields.hours instanceof On && timeFields.minutes instanceof On && timeFields.seconds instanceof On) {
+                if (TimeDescriptionStrategy.this.isDefault((On) timeFields.seconds)) {
+                    return String.format("%s %02d:%02d", bundle.getString("at"), ((On) hours).getTime().getValue(), ((On) minutes).getTime().getValue());
+                } else {
+                    return String.format("%s %02d:%02d:%02d", bundle.getString("at"), ((On) hours).getTime().getValue(), ((On) minutes).getTime().getValue(),
+                            ((On) seconds).getTime().getValue());
+                }
+            }
+            return StringUtils.EMPTY;
+        });
+    }
+
+    private void registerHourMinuteFunction() {
+        // case: 11:45
+        descriptions.add(timeFields -> {
+            if (timeFields.hours instanceof On && timeFields.minutes instanceof On && timeFields.seconds instanceof Always) {
+                return String.format("%s %s %s %02d:%02d", bundle.getString(EVERY), bundle.getString(SECOND), bundle.getString("at"),
+                        ((On) hours).getTime().getValue(), ((On) minutes).getTime().getValue());
+            }
+            return StringUtils.EMPTY;
+        });
+    }
+
+    private void registerAtMinuteFunction() {
+        // case: At minute x
+        descriptions.add(timeFields -> {
+            if (timeFields.hours instanceof Always && timeFields.minutes instanceof On && timeFields.seconds instanceof On) {
+                if (TimeDescriptionStrategy.this.isDefault((On) timeFields.seconds)) {
+                    if (TimeDescriptionStrategy.this.isDefault((On) timeFields.minutes)) {
                         return String.format(EVERY_MINUTE_FORMAT, bundle.getString(EVERY), bundle.getString("hour"));
                     }
-                }
-                final String result = String.format("%s %s %s %s %s %s ", bundle.getString(EVERY), ((Every) hours).getPeriod().getValue(),
-                        bundle.getString("hours"), bundle.getString("at"), bundle.getString(MINUTE), ((On) minutes).getTime().getValue());
-                if (TimeDescriptionStrategy.this.isDefault((On) timeFields.seconds)) {
-                    return result;
+                    return String.format("%s %s %s %s %s", bundle.getString(EVERY), bundle.getString("hour"), bundle.getString("at"),
+                            bundle.getString(MINUTE), ((On) timeFields.minutes).getTime().getValue());
                 } else {
-                    return String.format("%s %s %s", bundle.getString("and"), bundle.getString(SECOND), ((On) seconds).getTime().getValue());
+                    return String.format("%s %s %s %s %s %s %s %s", bundle.getString(EVERY), bundle.getString("hour"), bundle.getString("at"),
+                            bundle.getString(MINUTE), ((On) timeFields.minutes).getTime().getValue(), bundle.getString("and"), bundle.getString(SECOND),
+                            ((On) timeFields.seconds).getTime().getValue());
+                }
+            }
+            return StringUtils.EMPTY;
+        });
+    }
+
+    private void registerEverySecondEveryMinuteAtFunction() {
+        // case: every second
+        // case: every minute at x second
+        descriptions.add(timeFields -> {
+            if (timeFields.hours instanceof Always && timeFields.minutes instanceof Always) {
+                if (timeFields.seconds instanceof Always) {
+                    return String.format(EVERY_MINUTE_FORMAT, bundle.getString(EVERY), bundle.getString(SECOND));
+                }
+                if (timeFields.seconds instanceof On) {
+                    if (TimeDescriptionStrategy.this.isDefault((On) timeFields.seconds)) {
+                        return String.format(EVERY_MINUTE_FORMAT, bundle.getString(EVERY), bundle.getString(MINUTE));
+                    } else {
+                        return String.format("%s %s %s %s %02d", bundle.getString(EVERY), bundle.getString(MINUTE), bundle.getString("at"),
+                                bundle.getString(SECOND), ((On) timeFields.seconds).getTime().getValue());
+                    }
                 }
             }
             return StringUtils.EMPTY;
